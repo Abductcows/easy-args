@@ -2,6 +2,8 @@
 
 package io.github.abductcows.easyargs.arguments
 
+import com.sun.org.apache.xpath.internal.Arg
+
 class Argument @JvmOverloads constructor(
     /**
      * Short name of the argument e.g. -p or -v
@@ -19,16 +21,11 @@ class Argument @JvmOverloads constructor(
      * Quick summary of the argument's effect
      */
     var description: String = "",
-    /**
-     * Whether the argument is required or not
-     * // TODO decide how to report this on error
-     */
-    var required: Boolean = false
 ) {
 
     companion object {
 
-        fun builder() = Builder.instance.apply { reset() }
+        fun builder() = Builder.instance
     }
 
     class Builder private constructor() {
@@ -37,15 +34,13 @@ class Argument @JvmOverloads constructor(
             val instance = Builder()
         }
 
-        private var current: Argument? = null
+        private var current: Argument = Argument()
 
-        fun shortName(shortName: String) = apply { current?.shortName = shortName }
-        fun longName(longName: String) = apply { current?.longName = longName }
-        fun needsValue(needsValue: Boolean) = apply { current?.needsValue = needsValue }
-        fun description(description: String) = apply { current?.description = description }
-        fun required(required: Boolean) = apply { current?.required = required }
+        fun shortName(shortName: String) = apply { current.shortName = shortName }
+        fun longName(longName: String) = apply { current.longName = longName }
+        fun needsValue(needsValue: Boolean) = apply { current.needsValue = needsValue }
+        fun description(description: String) = apply { current.description = description }
 
-        fun build() = current.also { current = null }
-        fun reset() { current = Argument() }
+        fun build(): Argument = current.also { current = Argument() }
     }
 }
