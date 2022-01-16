@@ -1,32 +1,30 @@
+@file:Suppress("unused")
+
 package io.github.abductcows.easyargs.arguments
 
-class Argument internal constructor() {
-
+class Argument @JvmOverloads constructor(
     /**
      * Short name of the argument e.g. -p or -v
      */
-    var shortName: String = ""
-
+    var shortName: String = "",
     /**
      * Full name of the argument e.g. --port or --version
      */
-    var longName: String = ""
-
+    var longName: String = "",
     /**
      * Whether the argument needs an additional value e.g. --port 8080
      */
-    var needsValue: Boolean = false
-
+    var needsValue: Boolean = false,
     /**
      * Quick summary of the argument's effect
      */
-    var description: String = ""
-
+    var description: String = "",
     /**
      * Whether the argument is required or not
      * // TODO decide how to report this on error
      */
     var required: Boolean = false
+) {
 
     companion object {
 
