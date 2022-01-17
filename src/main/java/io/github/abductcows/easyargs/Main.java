@@ -18,7 +18,7 @@ public class Main {
         );
         try {
             parser.parseForMyArgs(fakeArgs, myArgs);
-        } catch (BadArgumentUseException ignored)  {
+        } catch (BadArgumentUseException ignored) {
 
         }
 
