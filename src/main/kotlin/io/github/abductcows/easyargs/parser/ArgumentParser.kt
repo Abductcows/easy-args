@@ -20,7 +20,7 @@ package io.github.abductcows.easyargs.parser
 import io.github.abductcows.easyargs.arguments.Argument
 
 /**
- * Parses the program arguments, looking for user defined ones.
+ * Parses the program arguments, looking for programmer defined ones.
  *
  * Returns a queryable result that can return:
  * - whether an argument has been supplied
@@ -114,12 +114,6 @@ class ArgumentParser {
 
         return true
     }
+
 }
 
-class BadArgumentUseException(message: String) : RuntimeException(message)
-class ParsingNotFinishedException : RuntimeException(
-    "Argument results requested but argument parsing not finished yet. " +
-            "Did you call parser.parseForMyArgs(..)?"
-)
-
-class DuplicateArgumentNameException(message: String) : RuntimeException(message)

@@ -24,7 +24,7 @@ package io.github.abductcows.easyargs.arguments
  *  - whether it accepts a value e.g. --port 8080
  *  - a description; brief summary of the argument's utility
  */
-class Argument internal constructor(
+class Argument private constructor(
     shortName: String = "",
     longName: String = "",
     needsValue: Boolean = false,
@@ -34,13 +34,13 @@ class Argument internal constructor(
      * Short name of the argument e.g. -p or -v
      */
     var shortName: String = shortName
-        private set
+        internal set
 
     /**
      * Full name of the argument e.g. --port or --version
      */
     var longName: String = longName
-        private set
+        internal set
 
     /**
      * Whether the argument needs an additional value e.g. --port 8080
@@ -56,22 +56,20 @@ class Argument internal constructor(
 
     companion object {
         @JvmStatic
-        fun withShortName(shortName: String) = Builder().apply { shortName(shortName) }
+        fun withShortName(shortName: String) = ShortNameArgBuilder(shortName)
 
         @JvmStatic
-        fun withLongName(longName: String) = Builder().apply { longName(longName) }
+        fun withLongName(longName: String) = LongNameArgBuilder(longName)
     }
 
-    class Builder {
-        private var current: Argument = Argument()
+    sealed class Builder {
+        protected var current: Argument = Argument()
 
-        fun shortName(shortName: String) = apply { current.shortName = shortName }
-        fun longName(longName: String) = apply { current.longName = longName }
-        fun needsValue() = apply { current.needsValue = true }
-        fun needsValue(needsValue: Boolean) = apply { current.needsValue = needsValue }
-        fun description(description: String) = apply { current.description = description }
+        open fun needsValue() = apply { current.needsValue = true }
+        open fun needsValue(needsValue: Boolean) = apply { current.needsValue = needsValue }
+        open fun description(description: String) = apply { current.description = description }
 
-        fun build(): Argument = current.also { reset() }
+        open fun build(): Argument = current.also { reset() }
 
         private fun reset() {
             current = Argument()
@@ -81,4 +79,36 @@ class Argument internal constructor(
     override fun toString(): String {
         return "Argument(shortName='$shortName', longName='$longName', needsValue=$needsValue, description='$description')"
     }
+}
+
+class ShortNameArgBuilder(shortName: String) : Argument.Builder() {
+
+    init {
+        if (shortName.isEmpty()) {
+            throw IllegalArgumentException("Short name cannot be empty")
+        }
+        current.shortName = shortName
+    }
+
+    fun longName(longName: String) = apply { current.longName = longName }
+    override fun needsValue() = super.needsValue()
+    override fun needsValue(needsValue: Boolean) = super.needsValue(needsValue)
+    override fun description(description: String) = super.description(description)
+    override fun build() = super.build()
+}
+
+class LongNameArgBuilder(longName: String) : Argument.Builder() {
+
+    init {
+        if (longName.isEmpty()) {
+            throw IllegalArgumentException("Long name cannot be empty")
+        }
+        current.longName = longName
+    }
+
+    fun shortName(shortName: String) = apply { current.shortName = shortName }
+    override fun needsValue() = super.needsValue()
+    override fun needsValue(needsValue: Boolean) = super.needsValue(needsValue)
+    override fun description(description: String) = super.description(description)
+    override fun build() = super.build()
 }
