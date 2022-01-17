@@ -2,6 +2,13 @@
 
 package io.github.abductcows.easyargs.arguments
 
+/**
+ * Argument domain class. Currently supports the following properties:
+ *  - a short name (specified with -`[`name`]` in the command line)
+ *  - a long name (specified with --`[`name`]` in the command line)
+ *  - whether it accepts a value e.g. --port 8080
+ *  - a description; brief summary of the argument's utility
+ */
 class Argument internal constructor(
     shortName: String = "",
     longName: String = "",
@@ -45,6 +52,7 @@ class Argument internal constructor(
 
         fun shortName(shortName: String) = apply { current.shortName = shortName }
         fun longName(longName: String) = apply { current.longName = longName }
+        fun needsValue() = apply { current.needsValue = true }
         fun needsValue(needsValue: Boolean) = apply { current.needsValue = needsValue }
         fun description(description: String) = apply { current.description = description }
 
@@ -53,5 +61,9 @@ class Argument internal constructor(
         private fun reset() {
             current = Argument()
         }
+    }
+
+    override fun toString(): String {
+        return "Argument(shortName='$shortName', longName='$longName', needsValue=$needsValue, description='$description')"
     }
 }
