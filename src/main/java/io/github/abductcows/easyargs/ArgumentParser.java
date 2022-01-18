@@ -16,9 +16,9 @@
 
 package io.github.abductcows.easyargs;
 
-import io.github.abductcows.easyargs.parser.ArgumentParserResult;
-import io.github.abductcows.easyargs.parser.BadArgumentUseException;
-import io.github.abductcows.easyargs.parser.ParsingNotFinishedException;
+import io.github.abductcows.easyargs.ArgumentParseException.BadArgumentUseException;
+import io.github.abductcows.easyargs.ArgumentParseException.ParsingNotFinishedException;
+import io.github.abductcows.easyargs.annotations.CustomNonNullAPI;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +33,7 @@ import java.util.Map;
  *     <li>if it is an argument-value pair, the value</li>
  * </ul>
  */
+@CustomNonNullAPI
 public class ArgumentParser {
 
     private Map<String, Argument> argsLookupByName;
@@ -40,7 +41,9 @@ public class ArgumentParser {
     private boolean parsingFinished;
 
     public ArgumentParser() {
-        reset();
+        argsLookupByName = new HashMap<>();
+        result = new ArgumentParserResult();
+        parsingFinished = false;
     }
 
 
@@ -67,9 +70,9 @@ public class ArgumentParser {
                 continue;
             }
             if (currentArgument.getNeedsValue()) {
-                result.addArgWithValue$easy_args(currentArgument, programArgs[i + 1]);
+                result.addArgumentWithValue(currentArgument, programArgs[i + 1]);
             } else {
-                result.addSimpleArgument$easy_args(currentArgument);
+                result.addSimpleArgument(currentArgument);
             }
         }
 

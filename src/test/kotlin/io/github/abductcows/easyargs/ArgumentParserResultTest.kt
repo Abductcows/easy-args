@@ -1,6 +1,5 @@
-package io.github.abductcows.easyargs.parser
+package io.github.abductcows.easyargs
 
-import io.github.abductcows.easyargs.Argument
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -25,7 +24,7 @@ internal class ArgumentParserResultTest {
     }
 
     @ParameterizedTest
-    @MethodSource("io.github.abductcows.easyargs.parser.ArgumentParserResultTest#randomSimpleArgs")
+    @MethodSource("io.github.abductcows.easyargs.ArgumentParserResultTest#randomSimpleArgs")
     @DisplayName("should contain the simple arg put into it")
     fun `should contain the simple args put into it`(argument: Argument) {
 
@@ -37,7 +36,7 @@ internal class ArgumentParserResultTest {
     }
 
     @ParameterizedTest
-    @MethodSource("io.github.abductcows.easyargs.parser.ArgumentParserResultTest#randomSimpleArgs")
+    @MethodSource("io.github.abductcows.easyargs.ArgumentParserResultTest#randomSimpleArgs")
     @DisplayName("should retrieve the simple arg put into it by name")
     fun `should retrieve the simple args put into it by name`(argument: Argument) {
 
@@ -59,12 +58,12 @@ internal class ArgumentParserResultTest {
     }
 
     @ParameterizedTest
-    @MethodSource("io.github.abductcows.easyargs.parser.ArgumentParserResultTest#randomArgsWithValue")
+    @MethodSource("io.github.abductcows.easyargs.ArgumentParserResultTest#randomArgsWithValue")
     @DisplayName("should retrieve the arg and value put into it by name")
     fun `should retrieve the arg and value put into it by name`(argument: Argument) {
 
         // when
-        result.addArgWithValue(argument, "")
+        result.addArgumentWithValue(argument, "asdf")
 
         // then
         argument.shortName.takeIf { it.isNotEmpty() }?.let {
@@ -83,12 +82,12 @@ internal class ArgumentParserResultTest {
     }
 
     @ParameterizedTest
-    @MethodSource("io.github.abductcows.easyargs.parser.ArgumentParserResultTest#randomArgsWithValue")
+    @MethodSource("io.github.abductcows.easyargs.ArgumentParserResultTest#randomArgsWithValue")
     @DisplayName("should contain the arg with value put into it and retrieve its value")
     fun `should contain the args with value put into it`(argument: Argument) {
 
         // when
-        result.addArgWithValue(argument, "") // dont care about value
+        result.addArgumentWithValue(argument, "asdf") // dont care about value
 
         // then
         assertThat(result.contains(argument)).isTrue

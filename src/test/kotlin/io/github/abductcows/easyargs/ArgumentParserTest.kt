@@ -14,10 +14,8 @@
    limitations under the License.
  */
 
-package io.github.abductcows.easyargs.parser
+package io.github.abductcows.easyargs
 
-import io.github.abductcows.easyargs.Argument
-import io.github.abductcows.easyargs.ArgumentParser
 import org.junit.jupiter.api.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments.arguments
@@ -34,7 +32,7 @@ internal class ArgumentParserTest {
     }
 
     @Test
-    @DisplayName("should parse successfully any program args with no defined args")
+    @DisplayName("should parse any program args with no defined args successfully")
     fun `parse random args with empty list`() {
 
         // given
@@ -47,7 +45,7 @@ internal class ArgumentParserTest {
     }
 
     @Test
-    @DisplayName("should parse successfully no program args with any defined args")
+    @DisplayName("should parse empty program args with any defined args successfully")
     fun `parse empty args with random list`() {
 
         // given
@@ -65,7 +63,7 @@ internal class ArgumentParserTest {
 
 
     @ParameterizedTest
-    @MethodSource("io.github.abductcows.easyargs.parser.ParserMethodSources#programArgsThatViolateDefinedArgs")
+    @MethodSource("io.github.abductcows.easyargs.ArgumentParserTest#programArgsThatViolateDefinedArgs")
     @DisplayName("should throw on improper defined argument use")
     fun `parse program args with some violation`(programArgs: Array<String>, definedArgs: List<Argument>) {
 
@@ -76,7 +74,7 @@ internal class ArgumentParserTest {
     }
 
     @ParameterizedTest
-    @MethodSource("io.github.abductcows.easyargs.parser.ParserMethodSources#programArgsThatViolateDefinedArgs")
+    @MethodSource("io.github.abductcows.easyargs.ArgumentParserTest#programArgsThatViolateDefinedArgs")
     @DisplayName("result should be available even after throwing parse exception")
     fun `parse exceptions should allow result retrieval`(programArgs: Array<String>, definedArgs: List<Argument>) {
 
@@ -95,32 +93,30 @@ internal class ArgumentParserTest {
     fun `getParseResult unhappy path test`() {
 
         // when/then
-        assertThrows<ParsingNotFinishedException> {
+        assertThrows<ArgumentParseException.ParsingNotFinishedException> {
             parser.parserResult
         }
     }
 
-}
+    companion object {
 
-@Suppress("unused")
-object ParserMethodSources {
-
-    /**
-     *  Returns pairs of ```String[], List<Argument>``` (program args, defined args)
-     */
-    @JvmStatic
-    private fun programArgsThatViolateDefinedArgs(): Iterable<org.junit.jupiter.params.provider.Arguments> {
-        return listOf(
-            arguments(
-                arrayOf("--port"), listOf(
-                    Argument.withLongName("port").needsValue().build()
-                )
-            ),
-            arguments(
-                arrayOf("-h", "-v"), listOf(
-                    Argument.withShortName("v").needsValue().build()
+        /**
+         *  Returns pairs of ```String[], List<Argument>``` (program args, defined args)
+         */
+        @JvmStatic
+        private fun programArgsThatViolateDefinedArgs(): Iterable<org.junit.jupiter.params.provider.Arguments> {
+            return listOf(
+                arguments(
+                    arrayOf("--port"), listOf(
+                        Argument.withLongName("port").needsValue().build()
+                    )
+                ),
+                arguments(
+                    arrayOf("-h", "-v"), listOf(
+                        Argument.withShortName("v").needsValue().build()
+                    )
                 )
             )
-        )
+        }
     }
 }
