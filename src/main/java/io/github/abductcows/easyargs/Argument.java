@@ -14,12 +14,9 @@
    limitations under the License.
  */
 
-package io.github.abductcows.easyargs.arguments;
-
-import io.github.abductcows.easyargs.CustomNonNullAPI;
+package io.github.abductcows.easyargs;
 
 import java.util.StringJoiner;
-
 
 /**
  * <h3>Models a programmer-defined program argument</h3>

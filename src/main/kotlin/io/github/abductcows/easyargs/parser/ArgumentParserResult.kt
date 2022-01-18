@@ -15,7 +15,7 @@
  */
 package io.github.abductcows.easyargs.parser
 
-import io.github.abductcows.easyargs.arguments.Argument
+import io.github.abductcows.easyargs.Argument
 import io.github.abductcows.easyargs.utils.returnForFirstNonEmptyName
 import io.github.abductcows.easyargs.utils.runForBothNames
 

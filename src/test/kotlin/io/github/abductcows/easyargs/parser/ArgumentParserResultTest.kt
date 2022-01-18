@@ -1,6 +1,6 @@
 package io.github.abductcows.easyargs.parser
 
-import io.github.abductcows.easyargs.arguments.Argument
+import io.github.abductcows.easyargs.Argument
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName

@@ -1,6 +1,6 @@
 package io.github.abductcows.easyargs.utils
 
-import io.github.abductcows.easyargs.arguments.Argument
+import io.github.abductcows.easyargs.Argument
 
 internal inline fun runForBothNames(argument: Argument, block: (String) -> Unit) {
     argument.shortName.takeIf { it.isNotEmpty() }?.let(block)

@@ -16,7 +16,8 @@
 
 package io.github.abductcows.easyargs.parser
 
-import io.github.abductcows.easyargs.arguments.Argument
+import io.github.abductcows.easyargs.Argument
+import io.github.abductcows.easyargs.ArgumentParser
 import org.junit.jupiter.api.*
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments.arguments
@@ -85,7 +86,7 @@ internal class ArgumentParserTest {
         }
 
         assertDoesNotThrow {
-            parser.getParseResult()
+            parser.parserResult
         }
     }
 
@@ -95,7 +96,7 @@ internal class ArgumentParserTest {
 
         // when/then
         assertThrows<ParsingNotFinishedException> {
-            parser.getParseResult()
+            parser.parserResult
         }
     }
 
