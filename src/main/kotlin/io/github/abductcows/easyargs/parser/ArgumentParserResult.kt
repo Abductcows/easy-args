@@ -16,13 +16,15 @@
 package io.github.abductcows.easyargs.parser
 
 import io.github.abductcows.easyargs.arguments.Argument
+import io.github.abductcows.easyargs.utils.returnForFirstNonEmptyName
+import io.github.abductcows.easyargs.utils.runForBothNames
 
 /**
  * Result of program arguments parsing based on the programmer's expected arguments.
  *
  * It can be queried to find if an argument was supplied or not. Or to get its value if applicable
  */
-class ArgumentParserResult {
+class ArgumentParserResult internal constructor() {
 
     // this implementation is based on the fact that no two arguments can have any same name (both short or long)
     private val simpleArgs = LinkedHashSet<String>()
@@ -58,17 +60,6 @@ class ArgumentParserResult {
     }
 
     fun getValue(argument: Argument): String = returnForFirstNonEmptyName(argument, ::getValue)
-
-    private inline fun runForBothNames(argument: Argument, block: (String) -> Unit) {
-        argument.shortName.takeIf { it.isNotEmpty() }?.let(block)
-        argument.longName.takeIf { it.isNotEmpty() }?.let(block)
-    }
-
-    private inline fun <T> returnForFirstNonEmptyName(argument: Argument, block: (String) -> T): T {
-        argument.shortName.takeIf { it.isNotEmpty() }?.let { return block(it) }
-        argument.longName.takeIf { it.isNotEmpty() }?.let { return block(it) }
-        throw IllegalArgumentException("$argument has no names")
-    }
 
     override fun toString(): String {
         return "ArgumentParserResult(simpleArgs=$simpleArgs, argsWithValue=$argsWithValue)"
