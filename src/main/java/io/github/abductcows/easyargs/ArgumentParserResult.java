@@ -33,7 +33,7 @@ import java.util.function.Function;
 public class ArgumentParserResult {
 
     /**
-     * Private constructor
+     * Package private constructor
      *
      * <p>Instances of this class are returned after argument parsing using {@link ArgumentParser#parseForMyArgs}</p>
      */

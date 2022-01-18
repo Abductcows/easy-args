@@ -14,8 +14,7 @@ import org.mockito.Mockito.`when` as whenever
 @ExtendWith(MockitoExtension::class)
 internal class ArgumentParserResultTest {
 
-
-    lateinit var result: ArgumentParserResult
+    private lateinit var result: ArgumentParserResult
 
     @BeforeEach
     fun setup() {
@@ -73,7 +72,7 @@ internal class ArgumentParserResultTest {
             }
         }
 
-        argument.longName.takeIf { it.isNotEmpty() }?.let{
+        argument.longName.takeIf { it.isNotEmpty() }?.let {
             assertThat(result.contains(it)).isTrue
             assertDoesNotThrow {
                 result.getValue(it)
@@ -99,32 +98,14 @@ internal class ArgumentParserResultTest {
     companion object {
 
         @JvmStatic
-        fun randomArgs(): Iterable<Argument> {
-            val simpleArgBothNames = mockArgument("h", "help", false)
-            val simpleArgShortName = mockArgument("v", "", false)
-            val simpleArgLongName = mockArgument("", "noinline", false)
-
-            val argWithValueBothNames = mockArgument("p", "port", true)
-            val argWithValueShortName = mockArgument("n", "", true)
-            val argWithValueLongName = mockArgument("", "timeout", true)
-
-            return listOf(
-                simpleArgBothNames,
-                simpleArgShortName,
-                simpleArgLongName,
-                argWithValueBothNames,
-                argWithValueShortName,
-                argWithValueLongName
-            )
-        }
-
-        @JvmStatic
         fun randomSimpleArgs(): Iterable<Argument> {
             val simpleArgBothNames = mockArgument("h", "help", false)
             val simpleArgShortName = mockArgument("v", "", false)
             val simpleArgLongName = mockArgument("", "noinline", false)
+            val simpleArgWithSameNames = mockArgument("arg", "arg", false)
 
-            return listOf(simpleArgBothNames, simpleArgShortName, simpleArgLongName)
+
+            return listOf(simpleArgBothNames, simpleArgShortName, simpleArgLongName, simpleArgWithSameNames)
         }
 
         @JvmStatic
@@ -132,8 +113,9 @@ internal class ArgumentParserResultTest {
             val argWithValueBothNames = mockArgument("p", "port", true)
             val argWithValueShortName = mockArgument("n", "", true)
             val argWithValueLongName = mockArgument("", "timeout", true)
+            val argWithValueAndSameNames = mockArgument("y", "y", true)
 
-            return listOf(argWithValueBothNames, argWithValueShortName, argWithValueLongName)
+            return listOf(argWithValueBothNames, argWithValueShortName, argWithValueLongName, argWithValueAndSameNames)
         }
 
         private fun mockArgument(short: String, long: String, value: Boolean): Argument {
