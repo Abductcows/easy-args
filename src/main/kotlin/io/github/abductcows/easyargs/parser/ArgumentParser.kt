@@ -40,7 +40,7 @@ class ArgumentParser {
      * will still be available by calling [getParseResult]
      *
      * @throws BadArgumentUseException if a String matching an [argument][Argument] violates its specification. E.g.
-     * does not have a value while [Argument.needsValue] is true
+     * does not have a value while [Argument.getNeedsValue] is true
      */
     fun parseForMyArgs(programArgs: Array<String>, myArgs: List<Argument>): ArgumentParserResult {
         var parseException: Exception? = null
@@ -79,6 +79,12 @@ class ArgumentParser {
         parseException?.let { throw it }
         return result
     }
+
+    /**
+     * Vararg overload of [parseForMyArgs]
+     */
+    fun parseForMyArgs(programArgs: Array<String>, vararg definedArgs: Argument) =
+        parseForMyArgs(programArgs, definedArgs.toList())
 
     /**
      * Returns the results of the argument parsing. Called after [parseForMyArgs]
