@@ -56,8 +56,8 @@ public class ArgumentParseException extends RuntimeException {
      */
     public static class DuplicateArgumentNameException extends ArgumentParseException {
 
-        public DuplicateArgumentNameException(String message) {
-            super(message);
+        public DuplicateArgumentNameException(String argumentString) {
+            super("Argument " + argumentString + " has been defined more than once");
         }
     }
 }

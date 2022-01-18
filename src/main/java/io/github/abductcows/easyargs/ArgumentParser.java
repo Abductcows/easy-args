@@ -17,15 +17,18 @@
 package io.github.abductcows.easyargs;
 
 import io.github.abductcows.easyargs.ArgumentParseException.BadArgumentUseException;
+import io.github.abductcows.easyargs.ArgumentParseException.DuplicateArgumentNameException;
 import io.github.abductcows.easyargs.ArgumentParseException.ParsingNotFinishedException;
 import io.github.abductcows.easyargs.annotations.CustomNonNullAPI;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Parses the program arguments, looking for programmer defined ones.
+ * Parser object that parses the program arguments, looking for programmer defined ones.
  * <p>
  * Returns a queryable result that can return:
  * <ul>
@@ -34,22 +37,39 @@ import java.util.Map;
  * </ul>
  */
 @CustomNonNullAPI
-public class ArgumentParser {
+public final class ArgumentParser {
 
-    private Map<String, Argument> argsLookupByName;
-    private ArgumentParserResult result;
-    private boolean parsingFinished;
+    private Map<String, Argument> argsLookupByName = new HashMap<>();
+    private ArgumentParserResult result = new ArgumentParserResult();
+    private boolean parsingFinished = false;
 
+    @Nullable
+    private RuntimeException parseException = null;
+
+    /**
+     * Argument parser constructor
+     * <p>
+     * Parser objects can be reused as new after a call to {@link #getParserResult}
+     */
     public ArgumentParser() {
-        argsLookupByName = new HashMap<>();
-        result = new ArgumentParserResult();
-        parsingFinished = false;
     }
 
-
+    /**
+     * Parses the program arguments and returns the queryable result used to handle the arguments
+     * <p>
+     * All exceptions are stored and thrown after parsing has finished. If caught, the remaining valid arguments
+     * are available via {@link #getParserResult()}. If multiple exceptions occur, the first one is thrown, with the others
+     * suppressed
+     * </p>
+     *
+     * @param programArgs the program arguments
+     * @param myArgs      programmer defined arguments
+     * @return the result of argument parsing
+     * @throws BadArgumentUseException        if an expected argument is supplied (same name) but does not conform to the full
+     *                                        specification (e.g. --port without value). The offending argument is discarded.
+     * @throws DuplicateArgumentNameException if two arguments are found with the same short or long name. The first argument will be kept.
+     */
     public ArgumentParserResult parseForMyArgs(String[] programArgs, List<Argument> myArgs) {
-
-        RuntimeException parseException = null;
 
         populateLookupTable(myArgs);
 
@@ -61,12 +81,7 @@ public class ArgumentParser {
             Argument currentArgument = argsLookupByName.get(currentArg);
             if (!isProperlyUsed(currentArgument, programArgs, i)) {
                 String message = "Sample message"; // todo add a proper message depending on argument
-
-                if (parseException == null) {
-                    parseException = new BadArgumentUseException(message);
-                } else {
-                    parseException.addSuppressed(new BadArgumentUseException(message));
-                }
+                storeException(new BadArgumentUseException(message));
                 continue;
             }
             if (currentArgument.getNeedsValue()) {
@@ -83,6 +98,27 @@ public class ArgumentParser {
         return result;
     }
 
+    /**
+     * Vararg version of {@link #parseForMyArgs(String[], List)}
+     *
+     * @param programArgs the program arguments
+     * @param myArgs      programmer defined arguments
+     * @return the result of argument parsing
+     * @see #parseForMyArgs(String[], List)
+     */
+    public ArgumentParserResult parseForMyArgs(String[] programArgs, Argument... myArgs) {
+        return parseForMyArgs(programArgs, Arrays.asList(myArgs));
+    }
+
+    /**
+     * Returns the result of the last argument parsing.
+     * <p>
+     * The result is returned only once. Subsequent calls without {@link #parseForMyArgs}
+     * will return empty {@link ArgumentParserResult} objects.
+     * </p>
+     * @return the queryable result
+     * @throws ParsingNotFinishedException if called before {@link #parseForMyArgs}
+     */
     public ArgumentParserResult getParserResult() {
         if (!parsingFinished) throw new ParsingNotFinishedException();
         ArgumentParserResult result = this.result;
@@ -94,10 +130,20 @@ public class ArgumentParser {
 
         for (Argument argument : myArgs) {
             if (!argument.getShortName().isEmpty()) {
-                argsLookupByName.put("-" + argument.getShortName(), argument);
+                String shortArgString = "-" + argument.getShortName();
+                if (!argsLookupByName.containsKey(shortArgString)) {
+                    argsLookupByName.put(shortArgString, argument);
+                } else {
+                    storeException(new DuplicateArgumentNameException(shortArgString));
+                }
             }
             if (!argument.getLongName().isEmpty()) {
-                argsLookupByName.put("--" + argument.getLongName(), argument);
+                String longArgString = "--" + argument.getLongName();
+                if (!argsLookupByName.containsKey(longArgString)) {
+                    argsLookupByName.put(longArgString, argument);
+                } else {
+                    storeException(new DuplicateArgumentNameException(longArgString));
+                }
             }
         }
     }
@@ -121,9 +167,18 @@ public class ArgumentParser {
         return argsLookupByName.containsKey(currentArg);
     }
 
+    private void storeException(RuntimeException e) {
+        if (parseException == null) {
+            parseException = e;
+        } else {
+            parseException.addSuppressed(e);
+        }
+    }
+
     private void reset() {
         argsLookupByName = new HashMap<>();
         result = new ArgumentParserResult();
         parsingFinished = false;
+        parseException = null;
     }
 }

@@ -30,7 +30,7 @@ import java.util.function.Function;
  * <p>It can be queried to find if an argument was supplied or not. Or to get its value, if applicable</p>
  */
 @CustomNonNullAPI
-public class ArgumentParserResult {
+public final class ArgumentParserResult {
 
     /**
      * Package private constructor
@@ -104,10 +104,6 @@ public class ArgumentParserResult {
         }
 
         return getResult;
-    }
-
-    public int argumentCount() {
-        return resultArguments.size();
     }
 
     /**
