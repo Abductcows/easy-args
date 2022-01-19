@@ -37,17 +37,41 @@
     </repositories>
 
     <build>
-        <sourceDirectory>src/main/java</sourceDirectory>
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
 
         <plugins>
+            <!-- Build helper plugin for more source directories -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Kotlin Maven plugin -->
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
-                <!--suppress KotlinMavenPluginPhase -->
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>1.6.10</version>
                 <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
                     <execution>
                         <id>test-compile</id>
                         <phase>process-test-sources</phase>
