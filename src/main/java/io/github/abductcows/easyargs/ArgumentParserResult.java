@@ -22,8 +22,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringJoiner;
-import java.util.function.Consumer;
-import java.util.function.Function;
+
+import static io.github.abductcows.easyargs.Utils.returnForFirstNonEmptyName;
+import static io.github.abductcows.easyargs.Utils.runForNonEmptyNames;
 
 /**
  * Result of program arguments parsing based on the programmer's expected arguments.
@@ -43,7 +44,7 @@ public final class ArgumentParserResult {
     /**
      * Argument names to potential values mapping
      * <p>
-     * Currently, args with no value map to empty string ("")
+     * Currently, args with no value map to the empty string ("")
      */
     private final Map<String, String> resultArguments = new HashMap<>();
 
@@ -104,43 +105,6 @@ public final class ArgumentParserResult {
         }
 
         return getResult;
-    }
-
-    /**
-     * Runs the block of code for every non-empty names of the argument
-     * <p>
-     * This will probably reduce boilerplate
-     *
-     * @param argument the argument
-     * @param block    the function to be called on each non-empty name
-     */
-    private void runForNonEmptyNames(Argument argument, Consumer<String> block) {
-        if (!argument.getShortName().isEmpty()) {
-            block.accept(argument.getShortName());
-        }
-        if (!argument.getLongName().isEmpty()) {
-            block.accept(argument.getLongName());
-        }
-    }
-
-    /**
-     * Runs the transform for the first non-empty name of the argument and returns the result.
-     * <p>
-     * Probably reduces boilerplate
-     *
-     * @param argument the argument
-     * @param function the function to be applied to the name
-     * @param <T>      generic result parameter for reusability
-     * @return the result of the function
-     */
-    private <T> T returnForFirstNonEmptyName(Argument argument, Function<String, T> function) {
-        if (!argument.getShortName().isEmpty()) {
-            return function.apply(argument.getShortName());
-        }
-        if (!argument.getLongName().isEmpty()) {
-            return function.apply(argument.getLongName());
-        }
-        throw new IllegalArgumentException(argument + " has no non-empty names");
     }
 
     @Override

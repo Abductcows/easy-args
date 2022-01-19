@@ -79,11 +79,8 @@ public final class ArgumentParser {
             if (!isValidArgumentName(currentArg)) continue;
 
             Argument currentArgument = argsLookupByName.get(currentArg);
-            if (!isProperlyUsed(currentArgument, programArgs, i)) {
-                String message = "Sample message"; // todo add a proper message depending on argument
-                storeException(new BadArgumentUseException(message));
-                continue;
-            }
+            if (!isProperlyUsed(currentArgument, programArgs, i)) continue;
+
             if (currentArgument.getNeedsValue()) {
                 result.addArgumentWithValue(currentArgument, programArgs[i + 1]);
             } else {
@@ -116,6 +113,7 @@ public final class ArgumentParser {
      * The result is returned only once. Subsequent calls without {@link #parseForMyArgs}
      * will return empty {@link ArgumentParserResult} objects.
      * </p>
+     *
      * @return the queryable result
      * @throws ParsingNotFinishedException if called before {@link #parseForMyArgs}
      */
@@ -148,7 +146,6 @@ public final class ArgumentParser {
         }
     }
 
-    @SuppressWarnings("RedundantIfStatement")
     private boolean isProperlyUsed(Argument argument, String[] programArgs, int indexInProgramArgs) {
 
         // fail if it needs a value but there is none
@@ -156,6 +153,10 @@ public final class ArgumentParser {
             int indexOfValue = indexInProgramArgs + 1;
             if (indexOfValue >= programArgs.length || // end of arguments, no value
                     isValidArgumentName(programArgs[indexOfValue])) { // next is another argument
+                String readableName = Utils.returnForFirstNonEmptyName(argument, String::toString);
+                String nextValue = indexOfValue >= programArgs.length ? "" : programArgs[indexOfValue];
+                storeException(new BadArgumentUseException(readableName + " requires a value, but \"" + nextValue +
+                        "\" cannot be used as a value"));
                 return false;
             }
         }
