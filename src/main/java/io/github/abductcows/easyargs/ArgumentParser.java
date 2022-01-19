@@ -21,12 +21,9 @@ import io.github.abductcows.easyargs.ArgumentParseException.DuplicateArgumentNam
 import io.github.abductcows.easyargs.ArgumentParseException.ParsingNotFinishedException;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static io.github.abductcows.easyargs.Utils.runForNonEmptyNamesAddingHyphens;
+import static io.github.abductcows.easyargs.Utils.*;
 
 /**
  * Parser object that parses the program arguments, looking for programmer defined ones.
@@ -72,7 +69,8 @@ public final class ArgumentParser {
      */
     public ArgumentParserResult parseForMyArgs(String[] programArgs, List<Argument> myArgs) {
 
-        populateLookupTable(myArgs);
+        List<Argument> argsCopy = discardDuplicates(myArgs);
+        populateLookupTable(argsCopy);
 
         for (int i = 0; i < programArgs.length; i++) {
             String currentArg = programArgs[i];
@@ -92,6 +90,25 @@ public final class ArgumentParser {
         if (parseException != null) {
             throw parseException;
         }
+        return result;
+    }
+
+    private List<Argument> discardDuplicates(List<Argument> myArgs) {
+
+        Set<String> argNames = new LinkedHashSet<>();
+        List<Argument> result = new ArrayList<>();
+
+        for (Argument arg : myArgs) {
+
+            if (argNames.contains(arg.getShortName()) || argNames.contains(arg.getLongName())) {
+                String argumentName = returnForFirstNonEmptyName(arg, String::toString);
+                storeException(new DuplicateArgumentNameException(argumentName));
+            } else {
+                result.add(arg);
+                runForNonEmptyNames(arg, argNames::add);
+            }
+        }
+
         return result;
     }
 
@@ -150,23 +167,10 @@ public final class ArgumentParser {
     private void populateLookupTable(List<Argument> myArgs) {
 
         for (Argument argument : myArgs) {
-
-            runForNonEmptyNamesAddingHyphens(argument, (argumentNameWithHyphens -> {
-                if (assertArgumentNotInLookup(argumentNameWithHyphens)) {
-                    argsLookupByName.put(argumentNameWithHyphens, argument);
-                }
-            }));
+            runForNonEmptyNamesAddingHyphens(argument, argumentNameWithHyphens -> {
+                argsLookupByName.put(argumentNameWithHyphens, argument);
+            });
         }
-    }
-
-    private boolean assertArgumentNotInLookup(String command) {
-
-        if (argsLookupByName.containsKey(command)) {
-            storeException(new DuplicateArgumentNameException(command));
-            return false;
-        }
-
-        return true;
     }
 
     private boolean isValidArgumentName(String currentArg) {
