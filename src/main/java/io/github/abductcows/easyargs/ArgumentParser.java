@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.github.abductcows.easyargs.Utils.runForNonEmptyNamesAddingHyphens;
+
 /**
  * Parser object that parses the program arguments, looking for programmer defined ones.
  * <p>
@@ -75,17 +77,16 @@ public final class ArgumentParser {
 
         for (int i = 0; i < programArgs.length; i++) {
             String currentArg = programArgs[i];
+
             // skip non-specified arguments
             if (!isValidArgumentName(currentArg)) continue;
 
             Argument currentArgument = argsLookupByName.get(currentArg);
-            if (!isProperlyUsed(currentArgument, programArgs, i)) continue;
-
-            if (currentArgument.getNeedsValue()) {
-                result.addArgumentWithValue(currentArgument, programArgs[i + 1]);
-            } else {
-                result.addSimpleArgument(currentArgument);
+            if (assertProperlyUsed(currentArgument, programArgs, i)) {
+                storeArgumentInResult(currentArgument, programArgs, i);
             }
+
+            removeFromLookupTable(currentArgument);
         }
 
         parsingFinished = true;
@@ -124,29 +125,56 @@ public final class ArgumentParser {
         return result;
     }
 
-    private void populateLookupTable(List<Argument> myArgs) {
-
-        for (Argument argument : myArgs) {
-            if (!argument.getShortName().isEmpty()) {
-                String shortArgString = "-" + argument.getShortName();
-                if (!argsLookupByName.containsKey(shortArgString)) {
-                    argsLookupByName.put(shortArgString, argument);
-                } else {
-                    storeException(new DuplicateArgumentNameException(shortArgString));
-                }
-            }
-            if (!argument.getLongName().isEmpty()) {
-                String longArgString = "--" + argument.getLongName();
-                if (!argsLookupByName.containsKey(longArgString)) {
-                    argsLookupByName.put(longArgString, argument);
-                } else {
-                    storeException(new DuplicateArgumentNameException(longArgString));
-                }
-            }
+    /**
+     * Stores the argument in the current result, including its value where applicable
+     *
+     * @param argument           the argument
+     * @param programArgs        the program arguments
+     * @param indexInProgramArgs index of the argument in the program arguments
+     */
+    private void storeArgumentInResult(Argument argument, String[] programArgs, int indexInProgramArgs) {
+        if (argument.getNeedsValue()) {
+            result.addArgumentWithValue(argument, programArgs[indexInProgramArgs + 1]);
+        } else {
+            result.addSimpleArgument(argument);
         }
     }
 
-    private boolean isProperlyUsed(Argument argument, String[] programArgs, int indexInProgramArgs) {
+    /**
+     * Adds the argument entries in the lookup table.
+     * <p>
+     * Skips already defined arguments and stores an exception
+     * </p>
+     *
+     * @param myArgs the programmer-defined argument list
+     */
+    private void populateLookupTable(List<Argument> myArgs) {
+
+        for (Argument argument : myArgs) {
+
+            runForNonEmptyNamesAddingHyphens(argument, (argumentNameWithHyphens -> {
+                if (assertArgumentNotInLookup(argumentNameWithHyphens)) {
+                    argsLookupByName.put(argumentNameWithHyphens, argument);
+                }
+            }));
+        }
+    }
+
+    private boolean assertArgumentNotInLookup(String command) {
+
+        if (argsLookupByName.containsKey(command)) {
+            storeException(new DuplicateArgumentNameException(command));
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean isValidArgumentName(String currentArg) {
+        return argsLookupByName.containsKey(currentArg);
+    }
+
+    private boolean assertProperlyUsed(Argument argument, String[] programArgs, int indexInProgramArgs) {
 
         // fail if it needs a value but there is none
         if (argument.getNeedsValue()) {
@@ -164,16 +192,16 @@ public final class ArgumentParser {
         return true;
     }
 
-    private boolean isValidArgumentName(String currentArg) {
-        return argsLookupByName.containsKey(currentArg);
-    }
-
     private void storeException(RuntimeException e) {
         if (parseException == null) {
             parseException = e;
         } else {
             parseException.addSuppressed(e);
         }
+    }
+
+    private void removeFromLookupTable(Argument argument) {
+        runForNonEmptyNamesAddingHyphens(argument, argsLookupByName::remove);
     }
 
     private void reset() {

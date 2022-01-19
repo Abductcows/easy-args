@@ -23,6 +23,24 @@ class Utils {
     }
 
     /**
+     * Runs the block of code for every non-empty names of the argument, adding hyphens to turn
+     * them into command strings first (- for short name and -- for long name)
+     * <p>
+     * Gotta love declarative
+     *
+     * @param argument the argument
+     * @param block    the function to be called on each non-empty name
+     */
+    static void runForNonEmptyNamesAddingHyphens(Argument argument, Consumer<String> block) {
+        if (!argument.getShortName().isEmpty()) {
+            block.accept("-" + argument.getShortName());
+        }
+        if (!argument.getLongName().isEmpty()) {
+            block.accept("--" + argument.getLongName());
+        }
+    }
+
+    /**
      * Runs the transform for the first non-empty name of the argument and returns the result.
      * <p>
      * Probably reduces boilerplate
