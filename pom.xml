@@ -21,8 +21,9 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
 
-        <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
+        <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
+        <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
 
         <jsr305.version>3.0.2</jsr305.version>
         <jetbrains.annotations.version>23.0.0</jetbrains.annotations.version>
@@ -40,41 +41,16 @@
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
 
         <plugins>
-            <!-- Build helper plugin for more source directories -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.3.0</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>src/main/java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- Kotlin Maven plugin -->
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
+                <!--suppress KotlinMavenPluginPhase -->
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>1.6.10</version>
                 <executions>
                     <execution>
-                        <id>compile</id>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
                         <id>test-compile</id>
-                        <phase>test-compile</phase>
+                        <phase>process-test-sources</phase>
                         <goals>
                             <goal>test-compile</goal>
                         </goals>
@@ -91,6 +67,17 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.22.2</version>
             </plugin>
+            <!-- Jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                    </archive>
+                </configuration>
+            </plugin>
             <!-- Sources jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -105,16 +92,34 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Jar -->
+            <!-- Javadoc jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin.version}</version>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
                 <configuration>
-                    <archive>
-                        <addMavenDescriptor>false</addMavenDescriptor>
-                    </archive>
+                    <additionalOptions>
+                        -public
+                        --override-methods=detail
+                        -nonavbar
+                        -noindex
+                        -nohelp
+                        -notree
+                        -nodeprecatedlist
+                    </additionalOptions>
+                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+                    <level>public</level>
+                    <staleDataPath>${project.build.directory}/javadoc-stale-data/maven-javadoc-plugin-stale-data.txt
+                    </staleDataPath>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadoc</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
 
@@ -174,6 +179,7 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>4.2.0</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -190,7 +196,6 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
-
 
     <developers>
         <developer>

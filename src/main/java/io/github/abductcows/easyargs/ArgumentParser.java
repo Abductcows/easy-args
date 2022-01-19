@@ -19,7 +19,6 @@ package io.github.abductcows.easyargs;
 import io.github.abductcows.easyargs.ArgumentParseException.BadArgumentUseException;
 import io.github.abductcows.easyargs.ArgumentParseException.DuplicateArgumentNameException;
 import io.github.abductcows.easyargs.ArgumentParseException.ParsingNotFinishedException;
-import io.github.abductcows.easyargs.annotations.CustomNonNullAPI;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;

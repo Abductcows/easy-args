@@ -17,12 +17,14 @@
 package io.github.abductcows.easyargs;
 
 /**
- * Base class for exceptions thrown during the parsing phase.
- * <p>
- * Can be caught to recover from a parsing error due to the {@link ArgumentParser} always finishing parsing before throwing.
+ * Base class for exceptions thrown before or during the parsing phase.
  */
 public class ArgumentParseException extends RuntimeException {
 
+    /**
+     * Default {@link RuntimeException} with a message constructor
+     * @param message the exception message
+     */
     public ArgumentParseException(String message) {
         super(message);
     }
@@ -31,6 +33,7 @@ public class ArgumentParseException extends RuntimeException {
      * Exception signaling argument string matching an {@link Argument}, but failing to comply with its specification.
      * <p>
      * Example: Program called with arguments "--port --quiet", but port requiring a value
+     * </p>
      */
     public static class BadArgumentUseException extends ArgumentParseException {
 
@@ -51,8 +54,7 @@ public class ArgumentParseException extends RuntimeException {
     }
 
     /**
-     * Thrown in the initial parsing stage when there are multiple arguments with the same name. You should generally not
-     * recover from this. Just design arguments with different names.
+     * Thrown when there are multiple defined arguments with the same name.
      */
     public static class DuplicateArgumentNameException extends ArgumentParseException {
 

@@ -14,7 +14,7 @@
    limitations under the License.
  */
 
-package io.github.abductcows.easyargs.annotations;
+package io.github.abductcows.easyargs;
 
 
 import javax.annotation.Nonnull;
@@ -28,5 +28,5 @@ import java.lang.annotation.ElementType;
         ElementType.TYPE_USE
 })
 @Nonnull
-public @interface CustomNonNullAPI {
+@interface CustomNonNullAPI {
 }

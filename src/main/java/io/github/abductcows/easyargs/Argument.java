@@ -16,8 +16,6 @@
 
 package io.github.abductcows.easyargs;
 
-import io.github.abductcows.easyargs.annotations.CustomNonNullAPI;
-
 import java.util.StringJoiner;
 
 /**
@@ -66,9 +64,14 @@ public final class Argument {
      * Constructs an {@link Argument} instance with a non-empty short name through the builder.
      * <p>
      * The argument can optionally be aliased with a long name using the
-     * {@link #withLongName(String)} method
+     * {@link ShortNameBuilder#longName(String)} method
+     * </p>
      * <p>
-     * Short names correspond to {@code -&lt;argument&gt;} usage
+     * Short names correspond to -&lt;argument&gt; usage
+     * </p>
+     *
+     * @param shortName the short name of the new argument
+     * @return builder for an argument with the given short name
      */
     public static ShortNameBuilder withShortName(String shortName) {
         return new ShortNameBuilder(shortName);
@@ -78,9 +81,14 @@ public final class Argument {
      * Constructs an {@link Argument} instance with a non-empty long name through the builder.
      * <p>
      * The argument can optionally be aliased with a short name using the
-     * {@link #withShortName(String)} method
+     * {@link LongNameBuilder#shortName(String)} method
+     * </p>
      * <p>
-     * Long names correspond to {@code --&lt;argument&gt;} usage
+     * Long names correspond to --&lt;argument&gt; usage
+     * </p>
+     *
+     * @param longName the long name of the new argument
+     * @return builder for an argument with the given long name
      */
     public static LongNameBuilder withLongName(String longName) {
         return new LongNameBuilder(longName);
@@ -90,20 +98,45 @@ public final class Argument {
     private static class Builder {
         protected Argument argument = new Argument();
 
+        /**
+         * Sets the argument to require a value
+         *
+         * @return the builder instance
+         */
         public Builder needsValue() {
             return needsValue(true);
         }
 
+        /**
+         * Sets the argument to require a value depending on the boolean expression
+         * <p>
+         * Convenience method for using whenever there is a computed value for this. Manual creation of few arguments
+         * is easier using {@link #needsValue()}, or lack thereof, to signify no value at all
+         *
+         * @param needsValue whether the argument will accept a value
+         * @return the builder instance
+         */
         public Builder needsValue(boolean needsValue) {
             argument.needsValue = needsValue;
             return this;
         }
 
+        /**
+         * Sets a description for the argument. Default is empty
+         *
+         * @param description a description string
+         * @return the builder instance
+         */
         public Builder description(String description) {
             argument.description = description;
             return this;
         }
 
+        /**
+         * Returns the {@link Argument} instance being built
+         *
+         * @return the builder result object
+         */
         public Argument build() {
             return argument;
         }
@@ -121,6 +154,12 @@ public final class Argument {
             argument.shortName = shortName;
         }
 
+        /**
+         * Sets a long name alias for the argument (used with --&lt;name&gt;)
+         *
+         * @param longName the long name
+         * @return the builder instance
+         */
         public ShortNameBuilder longName(String longName) {
             argument.longName = longName;
             return this;
@@ -159,6 +198,12 @@ public final class Argument {
             argument.longName = longName;
         }
 
+        /**
+         * Sets a short name alias for the argument (used with -&lt;name&gt;)
+         *
+         * @param shortName the short name
+         * @return the builder instance
+         */
         public LongNameBuilder shortName(String shortName) {
             argument.shortName = shortName;
             return this;
@@ -185,22 +230,47 @@ public final class Argument {
         }
     }
 
+    /**
+     * A long short name (called with -&lt;name&gt;, default = empty String)
+     *
+     * @return the short name for this argument
+     */
     public String getShortName() {
         return shortName;
     }
 
+    /**
+     * A long name (called with --&lt;name&gt;, default = empty String)
+     *
+     * @return the short name for this argument
+     */
     public String getLongName() {
         return longName;
     }
 
+    /**
+     * Whether it needs a value  (default = false)
+     *
+     * @return whether this argument needs a value
+     */
     public boolean getNeedsValue() {
         return needsValue;
     }
 
+    /**
+     * Argument description (default = empty String)
+     *
+     * @return a short description of the argument
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * String concatenation of all members for human-readable output/debugging
+     *
+     * @return string representation of the object
+     */
     @Override
     public String toString() {
         return new StringJoiner(", ", Argument.class.getSimpleName() + "[", "]")

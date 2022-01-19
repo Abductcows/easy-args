@@ -16,8 +16,6 @@
 
 package io.github.abductcows.easyargs;
 
-import io.github.abductcows.easyargs.annotations.CustomNonNullAPI;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -67,7 +65,7 @@ public final class ArgumentParserResult {
     }
 
     /**
-     * Queries the result for the existence of a specific argument by name
+     * Alias for {@link #contains(Argument)}, using argument name instead
      *
      * @param argumentName the argument name
      * @return whether the argument was supplied or not
@@ -107,6 +105,11 @@ public final class ArgumentParserResult {
         return getResult;
     }
 
+    /**
+     * String concatenation of all members for human-readable output/debugging
+     *
+     * @return string representation of the object
+     */
     @Override
     public String toString() {
         return new StringJoiner(", ", ArgumentParserResult.class.getSimpleName() + "[", "]")
