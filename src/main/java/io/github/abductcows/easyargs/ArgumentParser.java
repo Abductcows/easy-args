@@ -28,11 +28,7 @@ import static io.github.abductcows.easyargs.Utils.*;
 /**
  * Parser object that parses the program arguments, looking for programmer defined ones.
  * <p>
- * Returns a queryable result that can return:
- * <ul>
- *     <li>whether an argument has been supplied</li>
- *     <li>if it is an argument-value pair, the value</li>
- * </ul>
+ * Returns a queryable result that returns information about the program arguments.
  */
 @CustomNonNullAPI
 public final class ArgumentParser {
@@ -73,9 +69,8 @@ public final class ArgumentParser {
         populateLookupTable(argsCopy);
 
         for (int i = 0; i < programArgs.length; i++) {
-            String currentArg = programArgs[i];
 
-            // skip non-specified arguments
+            String currentArg = programArgs[i];
             if (!isValidArgumentName(currentArg)) continue;
 
             Argument currentArgument = argsLookupByName.get(currentArg);
@@ -95,21 +90,21 @@ public final class ArgumentParser {
 
     private List<Argument> discardDuplicates(List<Argument> myArgs) {
 
-        Set<String> argNames = new LinkedHashSet<>();
-        List<Argument> result = new ArrayList<>();
+        Set<String> argNamesSoFar = new LinkedHashSet<>();
+        List<Argument> uniqueArgs = new ArrayList<>();
 
         for (Argument arg : myArgs) {
 
-            if (argNames.contains(arg.getShortName()) || argNames.contains(arg.getLongName())) {
+            if (argNamesSoFar.contains(arg.getShortName()) || argNamesSoFar.contains(arg.getLongName())) {
                 String argumentName = returnForFirstNonEmptyName(arg, String::toString);
                 storeException(new DuplicateArgumentNameException(argumentName));
             } else {
-                result.add(arg);
-                runForNonEmptyNames(arg, argNames::add);
+                uniqueArgs.add(arg);
+                runForNonEmptyNames(arg, argNamesSoFar::add);
             }
         }
 
-        return result;
+        return uniqueArgs;
     }
 
     /**
@@ -118,7 +113,6 @@ public final class ArgumentParser {
      * @param programArgs the program arguments
      * @param myArgs      programmer defined arguments
      * @return the result of argument parsing
-     * @see #parseForMyArgs(String[], List)
      */
     public ArgumentParserResult parseForMyArgs(String[] programArgs, Argument... myArgs) {
         return parseForMyArgs(programArgs, Arrays.asList(myArgs));
@@ -141,29 +135,16 @@ public final class ArgumentParser {
         return result;
     }
 
-    /**
-     * Stores the argument in the current result, including its value where applicable
-     *
-     * @param argument           the argument
-     * @param programArgs        the program arguments
-     * @param indexInProgramArgs index of the argument in the program arguments
-     */
+
     private void storeArgumentInResult(Argument argument, String[] programArgs, int indexInProgramArgs) {
         if (argument.getNeedsValue()) {
-            result.addArgumentWithValue(argument, programArgs[indexInProgramArgs + 1]);
+            String value = programArgs[indexInProgramArgs + 1];
+            result.addArgumentWithValue(argument, value);
         } else {
             result.addSimpleArgument(argument);
         }
     }
 
-    /**
-     * Adds the argument entries in the lookup table.
-     * <p>
-     * Skips already defined arguments and stores an exception
-     * </p>
-     *
-     * @param myArgs the programmer-defined argument list
-     */
     private void populateLookupTable(List<Argument> myArgs) {
 
         for (Argument argument : myArgs) {
@@ -179,11 +160,11 @@ public final class ArgumentParser {
 
     private boolean assertProperlyUsed(Argument argument, String[] programArgs, int indexInProgramArgs) {
 
-        // fail if it needs a value but there is none
+
         if (argument.getNeedsValue()) {
             int indexOfValue = indexInProgramArgs + 1;
-            if (indexOfValue >= programArgs.length || // end of arguments, no value
-                    isValidArgumentName(programArgs[indexOfValue])) { // next is another argument
+            if (indexOfValue >= programArgs.length ||
+                    isValidArgumentName(programArgs[indexOfValue])) {
                 String readableName = Utils.returnForFirstNonEmptyName(argument, String::toString);
                 String nextValue = indexOfValue >= programArgs.length ? "" : programArgs[indexOfValue];
                 storeException(new BadArgumentUseException(readableName + " requires a value, but \"" + nextValue +

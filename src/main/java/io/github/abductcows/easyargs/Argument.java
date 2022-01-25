@@ -32,32 +32,12 @@ import java.util.StringJoiner;
 @CustomNonNullAPI
 public final class Argument {
 
-    /**
-     * Private constructor
-     *
-     * <p>Use the static builder methods {@link #withShortName(String)} and {@link #withLongName(String)} to create an instance</p>
-     */
     private Argument() {
     }
 
-    /**
-     * Short name of the argument e.g. -p or -v
-     */
     private String shortName = "";
-
-    /**
-     * Full name of the argument e.g. --port or --version
-     */
     private String longName = "";
-
-    /**
-     * Whether the argument needs an additional value e.g. --port 8080
-     */
     private boolean needsValue = false;
-
-    /**
-     * Quick summary of the argument's effect
-     */
     private String description = "";
 
     /**
@@ -98,45 +78,21 @@ public final class Argument {
     private static class Builder {
         protected Argument argument = new Argument();
 
-        /**
-         * Sets the argument to require a value
-         *
-         * @return the builder instance
-         */
+
         public Builder needsValue() {
             return needsValue(true);
         }
 
-        /**
-         * Sets the argument to require a value depending on the boolean expression
-         * <p>
-         * Convenience method for using whenever there is a computed value for this. Manual creation of few arguments
-         * is easier using {@link #needsValue()}, or lack thereof, to signify no value at all
-         *
-         * @param needsValue whether the argument will accept a value
-         * @return the builder instance
-         */
         public Builder needsValue(boolean needsValue) {
             argument.needsValue = needsValue;
             return this;
         }
 
-        /**
-         * Sets a description for the argument. Default is empty
-         *
-         * @param description a description string
-         * @return the builder instance
-         */
         public Builder description(String description) {
             argument.description = description;
             return this;
         }
 
-        /**
-         * Returns the {@link Argument} instance being built
-         *
-         * @return the builder result object
-         */
         public Argument build() {
             return argument;
         }
@@ -154,18 +110,10 @@ public final class Argument {
             argument.shortName = shortName;
         }
 
-        /**
-         * Sets a long name alias for the argument (used with --&lt;name&gt;)
-         *
-         * @param longName the long name
-         * @return the builder instance
-         */
         public ShortNameBuilder longName(String longName) {
             argument.longName = longName;
             return this;
         }
-
-        // Overrides
 
         @Override
         public ShortNameBuilder needsValue() {
@@ -198,18 +146,10 @@ public final class Argument {
             argument.longName = longName;
         }
 
-        /**
-         * Sets a short name alias for the argument (used with -&lt;name&gt;)
-         *
-         * @param shortName the short name
-         * @return the builder instance
-         */
         public LongNameBuilder shortName(String shortName) {
             argument.shortName = shortName;
             return this;
         }
-
-        // Overrides
 
         @Override
         public LongNameBuilder needsValue() {
@@ -230,38 +170,18 @@ public final class Argument {
         }
     }
 
-    /**
-     * A long short name (called with -&lt;name&gt;, default = empty String)
-     *
-     * @return the short name for this argument
-     */
     public String getShortName() {
         return shortName;
     }
 
-    /**
-     * A long name (called with --&lt;name&gt;, default = empty String)
-     *
-     * @return the short name for this argument
-     */
     public String getLongName() {
         return longName;
     }
 
-    /**
-     * Whether it needs a value  (default = false)
-     *
-     * @return whether this argument needs a value
-     */
     public boolean getNeedsValue() {
         return needsValue;
     }
 
-    /**
-     * Argument description (default = empty String)
-     *
-     * @return a short description of the argument
-     */
     public String getDescription() {
         return description;
     }

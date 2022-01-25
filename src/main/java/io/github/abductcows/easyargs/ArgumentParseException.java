@@ -17,14 +17,11 @@
 package io.github.abductcows.easyargs;
 
 /**
- * Base class for exceptions thrown before or during the parsing phase.
+ * Base class for exceptions thrown during the parsing phase.
  */
 public class ArgumentParseException extends RuntimeException {
 
-    /**
-     * Default {@link RuntimeException} with a message constructor
-     * @param message the exception message
-     */
+
     public ArgumentParseException(String message) {
         super(message);
     }
@@ -54,7 +51,7 @@ public class ArgumentParseException extends RuntimeException {
     }
 
     /**
-     * Thrown when there are multiple defined arguments with the same name.
+     * Thrown when there have been multiple arguments defined with the same name.
      */
     public static class DuplicateArgumentNameException extends ArgumentParseException {
 

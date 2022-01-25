@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Used to quickly generate a standard help message for your program
+ * Use to quickly generate a standard help message for your program
  *
  * <p>
  * Use the {@link #builder builder} methods to create a help String
@@ -163,12 +163,9 @@ public final class ArgumentHelpGenerator {
     }
 
     /**
-     * Builder class for a help message instance
+     * Help message builder
      * <p>
      * Use the static factory method {@link #builder} for an instance
-     * </p>
-     * <p>
-     * See {@link ArgumentHelpGenerator} for the general format of the help message
      */
     public static class Builder {
 

@@ -31,19 +31,9 @@ import static io.github.abductcows.easyargs.Utils.runForNonEmptyNames;
 @CustomNonNullAPI
 public final class ArgumentParserResult {
 
-    /**
-     * Package private constructor
-     *
-     * <p>Instances of this class are returned after argument parsing using {@link ArgumentParser#parseForMyArgs}</p>
-     */
     ArgumentParserResult() {
     }
 
-    /**
-     * Argument names to potential values mapping
-     * <p>
-     * Currently, args with no value map to the empty string ("")
-     */
     private final Map<String, String> resultArguments = new HashMap<>();
 
     void addSimpleArgument(Argument argument) {
