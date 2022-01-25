@@ -1,6 +1,23 @@
+/*
+   Copyright 2022 George Bouroutzoglou
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
 package io.github.abductcows.easyargs;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -10,16 +27,13 @@ import java.util.stream.Stream;
  * <p>
  * Use the {@link #builder builder} methods to create a help String
  * </p>
- * <p>
  * Format:
- * </p>
- * <ul>
- *     <li>Header</li>
- *     <li>Usage</li>
- *     <li>Options</li>
- *     <li>Footer</li>
- * </ul>
- * <p>
+ * <pre>
+ *      (header)
+ *       usage
+ *       options
+ *      (footer)
+ * </pre>
  * Example:
  * <pre>{@code
  *         List<Argument> myArgs = List.of(
@@ -38,7 +52,7 @@ import java.util.stream.Stream;
  *                 .build()
  *         );
  * }</pre>
- * <p>Produces:</p>
+ * Produces:
  * <pre>
  * Simple FTP Server
  * Usage: program [option1] [option2 &lt;value&gt;]..
@@ -50,9 +64,7 @@ import java.util.stream.Stream;
  *
  * This project is licensed under the Apache 2.0 License
  * </pre>
- * <p>
  * Header and Footer are blank by default
- * </p>
  */
 public final class ArgumentHelpGenerator {
 
@@ -76,7 +88,7 @@ public final class ArgumentHelpGenerator {
     }
 
     /**
-     * Creates a new help message builder
+     * Creates a new help message through the builder
      *
      * @param args the arguments to be included for the help message
      * @return the help message builder
@@ -95,15 +107,6 @@ public final class ArgumentHelpGenerator {
         return new Builder(Arrays.asList(args));
     }
 
-    /**
-     * Generates a generically formatted help message using the arguments provided
-     *
-     * @param args   the arguments to be displayed
-     * @param header the header of the message
-     * @param usage  a short usage example for the program
-     * @param footer the footer of the message
-     * @return the help message
-     */
     private static String generateHelpForArgs(List<Argument> args, String header, String usage, String footer) {
         String options = transformToString(args);
         List<String> stringsInOrder = Stream.of(header, usage, options, footer)
@@ -116,13 +119,14 @@ public final class ArgumentHelpGenerator {
     }
 
     private static String transformToString(List<Argument> args) {
-        List<Integer> maxWidths = getMaxWidths(args); // get max arg name widths
-        String maxShortNameFormat = String.format("%%-%ds", maxWidths.get(0));
-        String maxLongNameFormat = String.format("%%-%ds", maxWidths.get(1));
+        List<Integer> maxWidths = getMaxNameWidths(args);
+        String maxShortNameFormat = String.format("%%-%ds", maxWidths.get(0) + 1); // + length of -
+        String maxLongNameFormat = String.format("%%-%ds", maxWidths.get(1) + 2); // + length of --
         String tab = " ".repeat(4);
-
         StringBuilder builder = new StringBuilder();
+
         for (int i = 0, argsSize = args.size(); i < argsSize; i++) {
+
             Argument arg = args.get(i);
             String shortName = arg.getShortName();
             String longName = arg.getLongName();
@@ -133,7 +137,7 @@ public final class ArgumentHelpGenerator {
             builder.append("  ");
             builder.append(String.format(maxLongNameFormat,
                     longName.isEmpty() ? "" : "--" + longName));
-            builder.append("  ");
+            builder.append(tab);
             builder.append(arg.getDescription());
             if (i != argsSize - 1) {
                 builder.append('\n');
@@ -142,26 +146,20 @@ public final class ArgumentHelpGenerator {
         return builder.toString();
     }
 
-    private static List<Integer> getMaxWidths(List<Argument> args) {
+    private static List<Integer> getMaxNameWidths(List<Argument> args) {
 
         List<Integer> result = new ArrayList<>();
-        // max short name width
-        result.add(args.stream()
-                .map(Argument::getShortName)
-                .filter((name) -> !name.isEmpty())
-                .mapToInt((name) -> name.length() + "-".length())
-                .max()
-                .orElse(0)
-        );
-        // max long name width
-        result.add(args.stream()
-                .map(Argument::getLongName)
-                .filter((name) -> !name.isEmpty())
-                .mapToInt((name) -> name.length() + "--".length())
-                .max()
-                .orElse(0)
-        );
+        result.add(getMaxNameLength(args, Argument::getShortName));
+        result.add(getMaxNameLength(args, Argument::getLongName));
         return result;
+    }
+
+    private static int getMaxNameLength(List<Argument> args, Function<Argument, String> nameSelector) {
+        return args.stream()
+                .filter((arg) -> !nameSelector.apply(arg).isEmpty())
+                .mapToInt((arg) -> nameSelector.apply(arg).length())
+                .max()
+                .orElse(0);
     }
 
     /**
@@ -183,44 +181,21 @@ public final class ArgumentHelpGenerator {
             this.args = args;
         }
 
-        /**
-         * Set the header for the help message (default = empty String)
-         *
-         * @param header the new header
-         * @return the builder instance
-         */
         public Builder header(String header) {
             this.header = header;
             return this;
         }
 
-        /**
-         * Set the usage string for the program e.g. program [option1] [option2 &lt;value&gt;] etc
-         *
-         * @param usage usage example
-         * @return the builder instance
-         */
         public Builder usage(String usage) {
             this.usage = usage;
             return this;
         }
 
-        /**
-         * Set the help message footer (default = empty String)
-         *
-         * @param footer the new footer
-         * @return the builder instance
-         */
         public Builder footer(String footer) {
             this.footer = footer;
             return this;
         }
 
-        /**
-         * Build the help message
-         *
-         * @return the help message
-         */
         public String build() {
             return ArgumentHelpGenerator.generateHelpForArgs(args, header, usage, footer);
         }
