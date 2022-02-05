@@ -23,15 +23,12 @@ import java.util.stream.Stream;
 
 /**
  * Use to quickly generate a standard help message for your program
- *
  * <p>
- * Use the {@link #builder builder} methods to create a help String
- * </p>
  * Format:
  * <pre>
  *      (header)
- *       usage
- *       options
+ *      (usage)
+ *      (options)
  *      (footer)
  * </pre>
  * Example:
@@ -68,30 +65,25 @@ import java.util.stream.Stream;
  */
 public final class ArgumentHelpGenerator {
 
-    public static void main(String[] args) {
-
-        List<Argument> myArgs = List.of(
-                Argument.withLongName("port").shortName("p").needsValue()
-                        .description("specify the server port").build(),
-                Argument.withLongName("debug").build(),
-                Argument.withShortName("q").description("suppress program output").build(),
-                Argument.withLongName("help").shortName("h")
-                        .description("display this help message").build()
-        );
-
-        System.out.println(ArgumentHelpGenerator
-                .builder(myArgs)
-                .header("Simple FTP Server")
-                .footer("\nThis project is licensed under the Apache 2.0 License")
-                .build()
-        );
+    /**
+     * Quickly generate a help message. Use the {@link Builder} for default values
+     */
+    public static String generate(String header, String usage, String footer, List<Argument> args) {
+        return generateHelpForArgs(args, header, usage, footer);
     }
 
     /**
-     * Creates a new help message through the builder
+     * Vararg version of {@link #generate(String, String, String, List)}
+     */
+    public static String generate(String header, String usage, String footer, Argument... args) {
+        return generateHelpForArgs(Arrays.asList(args), header, usage, footer);
+    }
+
+    /**
+     * Builds a help message with specific components
      *
-     * @param args the arguments to be included for the help message
-     * @return the help message builder
+     * @param args the program arguments to be displayed
+     * @return the builder instance
      */
     public static Builder builder(List<Argument> args) {
         return new Builder(args);
@@ -99,9 +91,6 @@ public final class ArgumentHelpGenerator {
 
     /**
      * Vararg version of {@link #builder(List)}
-     *
-     * @param args the arguments to be included for the help message
-     * @return the help message builder
      */
     public static Builder builder(Argument... args) {
         return new Builder(Arrays.asList(args));
@@ -164,8 +153,6 @@ public final class ArgumentHelpGenerator {
 
     /**
      * Help message builder
-     * <p>
-     * Use the static factory method {@link #builder} for an instance
      */
     public static class Builder {
 
@@ -175,7 +162,7 @@ public final class ArgumentHelpGenerator {
         private String footer = "";
 
         private Builder(List<Argument> args) {
-            this.args = args;
+            this.args = Collections.unmodifiableList(args);
         }
 
         public Builder header(String header) {
